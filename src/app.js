@@ -1,26 +1,15 @@
-const { connect, QuotesMap } = require('./trading-view');
-const { getSymbols } = require('./utils');
+const { connect } = require('./trading-view');
+const { start: startProxyServer } = require('./proxy-ws-server')
 
 module.exports = async function () {
   let connection;
+  let wss;
   try {
     connection = await connect();
-    const quotesMap = new QuotesMap(connection);
-
-    //quotesMap.quoteEmitter.on('update', () => console.table([...quotesMap.values()]));
-    quotesMap.quoteEmitter.on('update',
-      (key) => console.log(`${quotesMap.get(key).ticker} --> ${quotesMap.get(key).price}`));
-
-    for (const symbol of await getSymbols()) {
-      quotesMap.set(symbol, {
-        symbol,
-        ticker: symbol.split(':')[1],
-        price: null
-      });
-    }
-
+    wss = await startProxyServer(connection);
   } catch (e) {
     console.error(e.toString())
     if (connection) connection.close();
+    if (wss) wss.close();
   }
 }
