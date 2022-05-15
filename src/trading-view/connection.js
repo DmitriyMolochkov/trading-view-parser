@@ -20,7 +20,6 @@ function parseMessage(message) {
   })
 }
 
-
 async function connect() {
   const connection = new WebSocket("wss://prodata.tradingview.com/socket.io/websocket", {
     origin: "https://prodata.tradingview.com"
@@ -62,7 +61,7 @@ async function connect() {
       }
     }
 
-    function handlePayLoad(payload) {
+    function handlePayload(payload) {
       const handle = handleByMessageType[payload.type];
       handle ? handle(payload) : reject(`unknown payload: ${JSON.stringify(payload)}`);
     }
@@ -71,7 +70,7 @@ async function connect() {
 
     connection.on('message', message =>
       parseMessage(message.toString())
-      .forEach(handlePayLoad)
+      .forEach(handlePayload)
     )
   })
 }
